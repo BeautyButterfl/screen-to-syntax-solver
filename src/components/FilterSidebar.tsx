@@ -9,14 +9,45 @@ import { CalendarIcon, ChevronDown } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
-const FilterSidebar = () => {
+interface FilterSidebarProps {
+  onFiltersChange?: (hasFilters: boolean) => void;
+}
+
+const FilterSidebar = ({ onFiltersChange }: FilterSidebarProps) => {
   const [date, setDate] = useState<Date>();
   const [department, setDepartment] = useState("");
   const [category, setCategory] = useState("");
   const [technician, setTechnician] = useState("");
 
   const handleApplyFilters = () => {
+    const hasFilters = !!(date || department || category || technician);
+    onFiltersChange?.(hasFilters);
     console.log('Applying filters:', { date, department, category, technician });
+  };
+
+  // Auto-apply filters when any field changes
+  const handleDateChange = (newDate: Date | undefined) => {
+    setDate(newDate);
+    const hasFilters = !!(newDate || department || category || technician);
+    onFiltersChange?.(hasFilters);
+  };
+
+  const handleDepartmentChange = (value: string) => {
+    setDepartment(value);
+    const hasFilters = !!(date || value || category || technician);
+    onFiltersChange?.(hasFilters);
+  };
+
+  const handleCategoryChange = (value: string) => {
+    setCategory(value);
+    const hasFilters = !!(date || department || value || technician);
+    onFiltersChange?.(hasFilters);
+  };
+
+  const handleTechnicianChange = (value: string) => {
+    setTechnician(value);
+    const hasFilters = !!(date || department || category || value);
+    onFiltersChange?.(hasFilters);
   };
 
   return (
@@ -45,7 +76,7 @@ const FilterSidebar = () => {
               <Calendar
                 mode="single"
                 selected={date}
-                onSelect={setDate}
+                onSelect={handleDateChange}
                 initialFocus
                 className={cn("p-3 pointer-events-auto")}
               />
@@ -59,7 +90,7 @@ const FilterSidebar = () => {
             FILTER BY DEPARTMENT:
           </Label>
           <div className="text-xs text-text-secondary mb-2">Select Department:</div>
-          <Select value={department} onValueChange={setDepartment}>
+          <Select value={department} onValueChange={handleDepartmentChange}>
             <SelectTrigger className="w-full h-8 text-xs">
               <SelectValue placeholder="Select Department" />
               <ChevronDown className="h-4 w-4 text-primary" />
@@ -79,7 +110,7 @@ const FilterSidebar = () => {
             FILTER BY CATEGORY:
           </Label>
           <div className="text-xs text-text-secondary mb-2">Select Category:</div>
-          <Select value={category} onValueChange={setCategory}>
+          <Select value={category} onValueChange={handleCategoryChange}>
             <SelectTrigger className="w-full h-8 text-xs">
               <SelectValue placeholder="Select Category" />
               <ChevronDown className="h-4 w-4 text-primary" />
@@ -99,7 +130,7 @@ const FilterSidebar = () => {
             FILTER BY TECHNICIAN:
           </Label>
           <div className="text-xs text-text-secondary mb-2">Select Technician:</div>
-          <Select value={technician} onValueChange={setTechnician}>
+          <Select value={technician} onValueChange={handleTechnicianChange}>
             <SelectTrigger className="w-full h-8 text-xs">
               <SelectValue placeholder="Select Technician" />
               <ChevronDown className="h-4 w-4 text-primary" />
